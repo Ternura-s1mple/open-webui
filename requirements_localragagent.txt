@@ -1,0 +1,23 @@
+# 仅用于 local_rag_agent 及 PDF 向量化的最小依赖
+# 版本兼容当前主 requirements_compatible.txt
+
+langchain==0.3.24
+langchain-community==0.3.23
+langchain_core>=0.3.46
+langgraph>=0.2.6
+
+# 文档加载与分割
+pypdf==4.3.1
+
+# 向量数据库
+faiss-cpu>=1.7.4,<2.0.0
+
+# rerank相关
+sentence-transformers==4.1.0
+transformers
+
+# 环境变量
+python-dotenv>=1.0.1
+
+# deepseek（如用到）
+langchain-deepseek>=0.0.1 

@@ -21,6 +21,8 @@ from agent1_core.models.model_adapter import get_model_adapter, MODEL_SERIES
 from agent1_core.schemas.tools_and_schemas import SearchQueryList, Reflection
 from dotenv import load_dotenv
 from agent.baseagent import BaseAgent
+from agent1_package.agent.local_rag_agent import LocalRAGAgent
+import glob
 
 load_dotenv()
 if os.getenv("GEMINI_API_KEY") is None:
@@ -64,37 +66,41 @@ class Agent1(BaseAgent):
         ]
 
     def web_research(self, state, config):
-         # 直接返回本地生成的内容，不联网
-        fake_result = f"本地模拟搜索结果：关于“{state['search_query']}”的简要说明。"
-        return {
-            "sources_gathered": [],
-            "search_query": [state["search_query"]],
-            "web_research_result": [fake_result],
-    }
-        # configurable = Configuration.from_runnable_config(config)
-        # formatted_prompt = web_searcher_instructions.format(
-        #     current_date=get_current_date(),
-        #     research_topic=state["search_query"],
-        # )
-        # response = genai_client.models.generate_content(
-        #     model="gemini-2.0-flash",
-        #     contents=formatted_prompt,
-        #     config={
-        #         "tools": [{"google_search": {}}],
-        #         "temperature": 0,
-        #     },
-        # )
-        # resolved_urls = resolve_urls(
-        #     response.candidates[0].grounding_metadata.grounding_chunks, state["id"]
-        # )
-        # citations = get_citations(response, resolved_urls)
-        # modified_text = insert_citation_markers(response.text, citations)
-        # sources_gathered = [item for citation in citations for item in citation["segments"]]
-        # return {
-        #     "sources_gathered": sources_gathered,
-        #     "search_query": [state["search_query"]],
-        #     "web_research_result": [modified_text],
-        # }
+        # 检查向量库是否存在
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        vector_db_path = os.path.join(base_dir, "vectorstore/faiss_index_local_txt")
+        local_pdf_folder = os.path.join(base_dir, "localpdf")
+        # 检查PDF文件
+        txt_files = glob.glob(os.path.join(local_pdf_folder, "*.txt"))
+        if not os.path.exists(vector_db_path) or not txt_files:
+            fake_result = "未找到向量库或TXT文件，请先上传TXT并完成向量化。"
+            return {
+                "sources_gathered": [],
+                "search_query": [state["search_query"]],
+                "web_research_result": [fake_result],
+            }
+        try:
+            # 只检索TXT
+            rag_agent = LocalRAGAgent(local_txt_folder=local_pdf_folder, vector_db_path=vector_db_path)
+            answer, context = rag_agent.ask(state["search_query"])
+            # 修正：将Document对象转为dict，避免后续subscriptable错误
+            context_list = []
+            for doc in context:
+                context_list.append({
+                    "page_content": getattr(doc, "page_content", ""),
+                    "metadata": getattr(doc, "metadata", {})
+                })
+            return {
+                "sources_gathered": context_list,
+                "search_query": [state["search_query"]],
+                "web_research_result": [answer],
+            }
+        except Exception as e:
+            return {
+                "sources_gathered": [],
+                "search_query": [state["search_query"]],
+                "web_research_result": [f"本地检索异常: {e}"],
+            }
 
     def reflection(self, state, config):
         configurable = Configuration.from_runnable_config(config)
@@ -160,9 +166,9 @@ class Agent1(BaseAgent):
         result = llm.invoke(formatted_prompt)
         unique_sources = []
         for source in state["sources_gathered"]:
-            if source["short_url"] in result.content:
+            if "short_url" in source and source["short_url"] in result.content:
                 result.content = result.content.replace(
-                    source["short_url"], source["value"]
+                    source["short_url"], source.get("value", "")
                 )
                 unique_sources.append(source)
         return {
