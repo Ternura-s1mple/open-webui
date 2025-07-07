@@ -1,0 +1,185 @@
+# 兼容性 requirements.txt - 解决 agent1_package, pipelines, backend 之间的版本冲突
+# 基于最高版本要求，确保所有项目都能正常工作
+
+# ===== 核心 Web 框架 =====
+fastapi==0.115.7  # 使用 backend 的版本（最高）
+uvicorn[standard]==0.34.2  # 使用 backend 的版本（最高）
+python-multipart==0.0.20  # 使用 backend 的版本（最高）
+python-socketio==5.13.0  # 使用 backend 的版本（最高）
+
+# ===== 数据验证和序列化 =====
+pydantic==2.10.6  # 使用 backend 的版本，满足 >=2.10.3 的要求
+python-jose==3.4.0
+passlib[bcrypt]==1.7.4
+
+# ===== HTTP 客户端 =====
+requests==2.32.4  # 使用 backend 的版本（最高）
+aiohttp==3.11.11  # 使用 backend 的版本（最高）
+httpx>=0.28.1  # 满足 google-genai 的要求
+async-timeout
+aiocache
+aiofiles
+starlette-compress==1.6.0
+
+# ===== 数据库相关 =====
+sqlalchemy==2.0.38
+alembic==1.14.0
+peewee==3.18.1
+peewee-migrate==1.12.2
+psycopg2-binary==2.9.9
+pgvector==0.4.0
+PyMySQL==1.1.1
+bcrypt==4.3.0
+pymongo
+redis
+boto3==1.35.53
+sqlmodel
+chromadb==0.6.3
+
+# ===== AI 和 LLM 库 =====
+# LangChain 系列 - 使用 agent1_package 的版本（较新）
+langchain==0.3.24  # 使用 backend 的版本
+langchain-community==0.3.23  # 使用 backend 的版本
+langchain_core>=0.3.46  # 使用 agent1_package 的版本
+langchain-google-genai  # agent1_package 需要
+langgraph>=0.2.6  # agent1_package 需要
+
+# Google AI
+google-genai==1.15.0  # 使用 backend 的版本
+google-generativeai==0.8.5  # 使用 backend 的版本
+vertexai
+
+# 其他 AI 库
+openai
+anthropic
+tiktoken
+transformers
+sentence-transformers==4.1.0
+accelerate
+colbert-ai==0.2.21
+einops==0.8.1
+
+# ===== 向量数据库 =====
+pymilvus==2.5.0
+qdrant-client~=1.12.0
+opensearch-py==2.8.0
+elasticsearch==9.0.1
+pinecone==6.0.2
+
+# ===== 文档处理 =====
+ftfy==6.2.3
+pypdf==4.3.1
+fpdf2==2.8.2
+pymdown-extensions==10.14.2
+docx2txt==0.8
+python-pptx==1.0.2
+unstructured==0.16.17
+nltk==3.9.1
+Markdown==3.7
+pypandoc==1.15
+pandas==2.2.3  # 使用 agent1_package 的版本
+openpyxl==3.1.5
+pyxlsb==1.0.10
+xlrd==2.0.1
+validators==0.35.0
+psutil
+sentencepiece
+soundfile==0.13.1
+azure-ai-documentintelligence==1.0.2
+
+# ===== 图像处理 =====
+pillow==11.2.1
+opencv-python-headless==4.11.0.86
+rapidocr-onnxruntime==1.4.4
+rank-bm25==0.2.2
+
+# ===== 机器学习 =====
+torch
+numpy
+xgboost
+scikit-learn
+tokenizers
+onnxruntime==1.20.1
+
+# ===== 音频处理 =====
+faster-whisper==1.1.1
+
+# ===== 认证和安全 =====
+PyJWT[crypto]==2.10.1
+authlib==1.4.1
+argon2-cffi==23.1.0
+
+# ===== 工具库 =====
+APScheduler==3.10.4
+RestrictedPython==8.0
+loguru==0.7.3
+asgiref==3.8.1
+fake-useragent==2.1.0
+black==25.1.0
+langfuse==2.44.0
+youtube-transcript-api==1.1.0
+pytube==15.0.0
+extract_msg
+pydub
+duckduckgo-search==8.0.2
+
+# ===== Google 服务 =====
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+googleapis-common-protos==1.63.2
+google-cloud-storage==2.19.0
+
+# ===== Azure 服务 =====
+azure-identity==1.21.0
+azure-storage-blob==12.24.1
+
+# ===== 其他服务 =====
+ldap3==2.9.1
+firecrawl-py==1.12.0
+tencentcloud-sdk-python==3.0.1336
+
+# ===== 监控和追踪 =====
+opentelemetry-api==1.32.1
+opentelemetry-sdk==1.32.1
+opentelemetry-exporter-otlp==1.32.1
+opentelemetry-instrumentation==0.53b1
+opentelemetry-instrumentation-fastapi==0.53b1
+opentelemetry-instrumentation-sqlalchemy==0.53b1
+opentelemetry-instrumentation-redis==0.53b1
+opentelemetry-instrumentation-requests==0.53b1
+opentelemetry-instrumentation-httpx==0.53b1
+opentelemetry-instrumentation-aiohttp-client==0.53b1
+
+# ===== 测试 =====
+docker~=7.1.0
+pytest~=8.3.5
+pytest-docker~=3.1.1
+
+# ===== agent1_package 特定依赖 =====
+python-dotenv>=1.0.1
+rich>=13.9.4
+pyyaml>=6.0
+
+# ===== pipelines 特定依赖 =====
+grpcio
+selenium
+playwright==1.49.1  # 使用 backend 的版本
+beautifulsoup4
+llama-index
+llama-index-llms-ollama
+
+# ===== 可视化 =====
+matplotlib
+seaborn
+
+# ===== 可选依赖（注释掉，按需安装）=====
+# hanlp==2.1.1
+# PyPDF2>=3.0.0
+# python-docx>=0.8.11
+# chardet==3.0.4
+# textract==1.6.3
+# graphdatascience==1.12
+# langchain_neo4j==0.4.0
+# langchain_openai==0.3.9
+# neo4j 
